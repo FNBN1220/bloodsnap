@@ -164,12 +164,15 @@ export default function App() {
   const meds=[{name:"메트포르민 500mg",times:["08:00","20:00"]},{name:"혈당 측정",times:["07:30","12:00","18:30"]}];
   const todayMedKey=ts;
 
+  // Image compression to stay under Vercel 4.5MB limit
+  const compressImage=async(b64,maxW=800,quality=0.6)=>{return new Promise(res=>{const img=new Image();img.onload=()=>{const c=document.createElement("canvas");let w=img.width,h=img.height;if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}c.width=w;c.height=h;const ctx=c.getContext("2d");ctx.drawImage(img,0,0,w,h);res(c.toDataURL("image/jpeg",quality));};img.src=b64;});};
+
   const handlePhoto=async e=>{const files=e.target.files;if(!files||!files.length)return;
     const newPreviews=[...previews];const newPhotos=[...form.photos];
     for(let i=0;i<files.length;i++){const f=files[i];const b64=await new Promise((res)=>{const r=new FileReader();r.onloadend=()=>res(r.result);r.readAsDataURL(f);});
-      newPreviews.push(b64);newPhotos.push(b64);}
+      const compressed=await compressImage(b64);
+      newPreviews.push(compressed);newPhotos.push(compressed);}
     setPreviews(newPreviews);setForm(p=>({...p,photos:newPhotos}));
-    // AI analyze the latest photo
     const latest=newPreviews[newPreviews.length-1];
     setAnalyzing(true);setAiResult(null);
     const res=await analyzeFood(latest);setAnalyzing(false);
