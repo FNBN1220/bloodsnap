@@ -24,13 +24,9 @@ const analyzeFood = async (base64) => {
   try {
     const mt = base64.startsWith("data:image/png")?"image/png":"image/jpeg";
     const raw = base64.split(",")[1];
-    const res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
-        messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:mt,data:raw}},
-          {type:"text",text:'이 음식을 분석하세요. 양도 추정하세요. JSON만 응답:\n{"name":"음식명","emoji":"이모지","gi":"high/medium/low","gi_score":"수치","calories":"kcal","portion":"추정량","carbs":"g","protein":"g","fat":"g","fiber":"g","sugar":"g","sodium":"mg","warning":"당뇨주의사항","tip":"혈당관리팁","confidence":"high/medium/low"}'}]}]})});
-    const data = await res.json();
-    const text = data.content.map(c=>c.text||"").join("");
-    return JSON.parse(text.replace(/```json|```/g,"").trim());
+    const res = await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({image:raw, media_type:mt, mode:"food"})});
+    return await res.json();
   } catch(e) { return null; }
 };
 
@@ -42,12 +38,9 @@ const getAIDiet = async (records) => {
     const highFoods = {};
     recent.filter(r=>r.food&&r.glucose>140).forEach(r=>{highFoods[r.food]=(highFoods[r.food]||0)+1;});
     const topBad = Object.entries(highFoods).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n])=>n).join(", ");
-    const res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
-        messages:[{role:"user",content:`당뇨 환자의 최근 평균혈당: ${avgGlucose}mg/dL. 혈당을 많이 올린 음식: ${topBad||"없음"}. 한국인 식단 기준으로 혈당 관리에 좋은 아침/점심/저녁 메뉴를 추천해주세요. JSON만 응답:\n{"breakfast":{"menu":"메뉴명","desc":"설명","gi":"low/medium"},"lunch":{"menu":"메뉴명","desc":"설명","gi":"low/medium"},"dinner":{"menu":"메뉴명","desc":"설명","gi":"low/medium"},"tip":"전체적인 식단 조언 한 줄"}`}]})});
-    const data = await res.json();
-    const text = data.content.map(c=>c.text||"").join("");
-    return JSON.parse(text.replace(/```json|```/g,"").trim());
+    const res = await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({mode:"diet", avgGlucose, topBad})});
+    return await res.json();
   } catch(e) { return null; }
 };
 
