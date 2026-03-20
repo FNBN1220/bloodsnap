@@ -4,11 +4,14 @@ import { Home, Calendar, Settings, Plus, X, TrendingUp, Clock, BarChart3, Camera
 const LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAIAAAC2BqGFAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAALa0lEQVR42u2dbYxcZRXH///nee6d2Znd7rTblrZgW4pCCzbaNq1IAOPbBwNCiCZGjRKJfsAPxmjUNDH6gUQ08ZNvCIkhKjFRUfFToyFREIwKJVBAQEl5be3C0s5uu7Mzc+/zHD/cnW13Zvb1ztyZO3ufD03T3b3d+d3/Pc855znnXIoIstX9pTIEGegMdLYy0BnoDHS2MtAZ6GxloDPQa3yZtPyiArDlH10n0gdkmyt3fLGfcx0CiEAABSHncDNTdMdWJFVFsEH1rJU8YRQv+B55diqsWjGKJDTJSPYCmb0ps2KatZKc+7vMXb9icUletg55bZ+YQVa0FSgKAYBnQ/fclH30dPiP0+H4jLv34PClBe1k9mGfDOQDD0+9UnF5RaFccFPmGAsAgtLgzcaXoj+NwkRVfvzu3K07C1aguTYUHRHUBMB/ng5+dzJ46M3w1Wl31kIgJcNQmm2rJoQU0s3emmYZXWiGpPULDgIoxTVkOhqCckdOBT97ufboW/ZcSF8jp7hBw0J5cE1bn2lYkmWBavc9ilCQZBwv0x9CFk0emwzvfKH65/EgAIpalXyIwAFW4CAOaDJyBBQYXWB15k+i3ZVrALQTKAqAH75Y/f5/q2cCjHi6ALEC22IompVLkBCJx4nR3Rpo0E5EEVOhfO1Y5VevBUWPJY+hiG0nPbRITwMmNqJuOxu9Bx1R/l9VPn+08teJcIOvnCCURQ2stBF0XK8rKce8N6CtiCbGa/LJf517ouzGfIayLPW1QCJis05G0j3IdURPazmQ2x6ffqLsSsujnCWVVkzZCRR5+JnKXyZsyWfolntvmmw0ASUZ6IXdDE3c+0r1vlfDseVRzhS9Ssr/nrJ3PFctGLqVPAhMyN8dCNBRwufOF6pv1OErrKkaqeRAWwEpD74RHjlVK3m0EuN2XRDXSQduvwwUaAUIcM/xah3xsjjSg3AjNaCjzNzf3goenrAjerVyZttcRQa6Zd33Sr3iVq1naaKaJszJgBZAEadq7pEJO6TVag76GJ1pzftJkc6ATiYEV4nYDQHkT+P1EzPw1WrpEGhN1Ak7oYNB2QwjyTw4bh1XucWzEVI2M5LMRs+3GxN1OTYZ5PXqCwScwLVuhUzNmbjqvt0AgGenwpMz8OO5rK0/mym6eR09E844ieM/t5oOJ3CdSUkPxGYYfYhjZccYuQoCIs2gBXSCmCELB0PRkYGuOzlecV5su+GaL5AFLPPX2RDlAEoxjkWVRnnRfEeaGehZFADerLupQEy8NKdI89YnQIpIJ6Hoc4GrutXXqch508EmGy0LuSMruHJCae5u22gBpC5iJQ6QBZ25mBdkB67RL4omgEoIKx3Y36XTXCRBvyMB08GakyhN2h0ucZ+TQSo3oErwIV2zm6FoshMGus0VGP/Z54CAFgDDWrQSETBTdNe2QgLMaWUQW9Rs/dWFjaL+zHQAwLART3flIDVFjUNdVjQBYMzX60yM+oKGoJt31NjJaAIQJhNdJqHoEY/rPFpJea1Rf9toCDCkuDWvwvi1+a0/z464jANxZhil3K4YoY1bzyic7WBrMibxAHOgAhYcKBnDmOdObQ0P0xIHdf+EhQDwrpLZ4DOMoZ5GF20nsTY2w4EAHf0HOwu8vKhqtg/3wwHJ3gGAFRjyus0mcLH2w3YBdwe8cxkY0BGgGy/yRz1ZRb6U5zfDzouZHIjE/5x5FeCdo3rfqJmxsupP1o08PSFqkLwOJ9DkJ97m21W5HtGYDnKeeyfoQM+AJguGgwNaEQK5eZt31YipWKoVBhpEG/McX95O4CmO+kT3E1MJgY5649cZddtOP4iKHVes6A6ziDzwHLHOqMFRNABFCvDp7f6h9fpcuOJydAId37cE0Ao5xYECHZV1FTQP784buBV7H+1LfuPWiniErwTdrzpItLVCEVbkQ5u9z13qn6m7lT6yHVeeA/KKQ3qwFH3egAi+ubvwvjE9Wcfyy5fa2Oh4vRUknGDYsKCTSJgkDTpqkFhnePf+wjuKnArdMp0rxTYTk2LisYKSj7xO4jisB9MNFOAE2wv654cK24c4GXL5rJu2MhcjXCTgRDbmqEDX/UOW3ozMjIz1VSPm1+8p7h6WciB60YE7bTMa5w8SVtt+ZAU7CqpTxwf9CDoKyaxgz4h54L3DN2wxp2vOAXohky1tXIzYYaEoyM6CSuw5Ru9Ywwm25vUvDha/tSdvIGcCR1C3M8et0zkk3mxSJ/QUdxT14IOObIgDPOIbl+f/eM3wLVuMFTsZIBRoUrNx0h1Nb5yP30IsoRqTBtVKPGECFlI0uDifRPyNfhhrrAABrXB/yfzyUPH+q4sf36ZGNCYDVw5QtXCAIgyo5p+wOAEEFqhanAkwHa4skxqKbPLV1rxGIjXSfTHJkYDmbGnvtWP+tWP+8Ur46IR96M3w6Sl7asZNhggpoWsWX2BlSMnOIvcMmxu3+v+Ztt95vlY0S5sUEkHI7UNq1EtoREIfzSaNppJGBb67CmbXdv2Z7f5kIK/OuJem3amq2+TPMoq4jBredaCwwVM7ihzWBHhknCLV5XAjEIrsHSXBbo9/7TvQFzrLUZ+sAkY9tddTe9e1yW54iteNedHf6040MR06WZ5ABfCI/euT+/h9Oj9aNSZZygWRdqvuXKMLJdo5Z5y4ZdhbAlYw6mH3iMHAT3JcQYqDy40Vp+pOZGlFE6g7XDqsdxQUkuoWGqiXKZTDZQUxJKoO+0uqoOFEBudwNhnhAzg5I1ymgYZ8cJNJJvgeHNBRI7QTvDTtzFLHkZHd2JrnNWMGWFmYkykaAN6ouZcrbslxeoqoWTlQ0hfltQxM030yKxol9MzZcLwKbylFR1/96DYPHXqNy5pT9JPlsOpk8ZFNBKoOlxX54Ys0unA2NuCgo9GFj73lzFJnLoqshu4jW8wGT9tku8RSD9oBJF+atkfLNr9oDXYUdo/5/NT2HBIva0096IjskXE7XnOLz2xS5NkAN2/zrhrRThK1G6kHHTl2VSe/P1H11GJjuwkEDpt93H5ZrieNiekGHZXhPHCy9vgZV1g0O6qIc6G9dafZM2ySlzNS9Jq9tnImMG3dT4/XNdWiauKMxe5h9cVdQ4LedB2oNMtZFOXu47Wj5SXkDCJw7vDu3Kac6lVLelpBR9n6p6bsD16sFRZ2NqIyxjN199kd3scuzlkR1aMmGpVOLUMT5VC+8tTMpF1sQKQhpgIeLPGOK4cEVL3rVVJppBzN0vvSk9OPnXbDC4/91sSMw9ac/GR/seSp3s6xSBNomX2tJOpOvvzU9B9O2HX+gpQVUXPIE/ccKFw5YmwvPI30eR2zr8mBaOL1Gfnqsekj427UX3DmtwFmHDzg7v1D148ZK6J73eDIFA2sdZDfvF7/7vPVlysY9uCkfbmtJqZDjBr8aN/QDVt8K6LY+z7SFIAW4LVK+PBE+NsTwSMTVpF5jbYWg4Aiy3V3xYi6a1/h4Pq+0HI6QDuRrz9duf9kMFmnUIqGbJnYPSfkukMlxE3b9Pf2Fi7Jq+gdc30yCcj0s5AJhMDfT9vTdZR8OKFrKfJn4xyrHMimHL+9O3f7ZTmCUWdj/3ycFGyGBU2PcC3zo6MeACucDFxe4ZZt3uErcntGjAgce+xjpBK0nW/dIr5OULWoWhkx7sYt/hd2+e/faOYixj4cKdTvoEXgJHqRfZS5x3QooZMhrd5e5Ac2mZsu9q5e70WFA5JIFd3AKlqAmiCsiwAjBgfX6+s3etdt1PtKOmp6jUyK6u8X8Zm+txsIrN2R57VjZv96fWi9vnJU5xpJ0ejcT6Vh+Fi/u3dW5OlysK1gNucanYYidnbYQZpmcKYmMpwryE0X3zTZ6Kg0XaV8OGGach2pXipDkIHOQGcrA52BzkBnKwOdgc5WBjoDvcbX/wFfkcjpVardyAAAAABJRU5ErkJggg==";
 
 /* ─── Helpers ─── */
-/* ─── Blood glucose ranges by measurement type (대한당뇨병학회 기준) ─── */
+/* ─── Blood glucose ranges - 당뇨인 엄격 기준 ─── */
+/* 식전/공복: 이상적 80~100, 적정 100~110, 주의 110~130, 높음 130~160, 위험 160+
+   식후2시간: 이상적 90~120, 적정 120~140, 주의 140~180, 높음 180~200, 위험 200+
+   취침전: 이상적 100~120, 적정 120~130, 주의 130~150, 높음 150~180, 위험 180+  */
 const RANGES = {
-  "식전": { low: 70, normal: 80, warn: 130, high: 160, label: "식전/공복" },
-  "식후": { low: 70, normal: 90, warn: 180, high: 200, label: "식후 2시간" },
-  "취침": { low: 70, normal: 100, warn: 140, high: 160, label: "취침 전" },
+  "식전": { low: 70, ideal: 100, ok: 110, warn: 130, high: 160, label: "식전/공복", target: "80~100" },
+  "식후": { low: 70, ideal: 120, ok: 140, warn: 180, high: 200, label: "식후 2시간", target: "90~120" },
+  "취침": { low: 70, ideal: 120, ok: 130, warn: 150, high: 180, label: "취침 전", target: "100~120" },
 };
 const getRangeType = (type) => {
   if (!type) return RANGES["식전"];
@@ -19,10 +22,11 @@ const getRangeType = (type) => {
 const getLevel = (v, type) => {
   const r = getRangeType(type);
   if (v < r.low) return { label: "저혈당", color: "#5B8DEF", bg: "rgba(91,141,239,0.08)", ring: "rgba(91,141,239,0.2)" };
-  if (v <= r.normal) return { label: "양호", color: "#00C48C", bg: "rgba(0,196,140,0.06)", ring: "rgba(0,196,140,0.18)" };
-  if (v <= r.warn) return { label: "정상", color: "#00C48C", bg: "rgba(0,196,140,0.06)", ring: "rgba(0,196,140,0.18)" };
-  if (v <= r.high) return { label: "주의", color: "#FFB340", bg: "rgba(255,179,64,0.07)", ring: "rgba(255,179,64,0.2)" };
-  return { label: "위험", color: "#EF4444", bg: "rgba(239,68,68,0.07)", ring: "rgba(239,68,68,0.25)" };
+  if (v <= r.ideal) return { label: "정상", color: "#00C48C", bg: "rgba(0,196,140,0.06)", ring: "rgba(0,196,140,0.18)" };
+  if (v <= r.ok) return { label: "경계", color: "#F59E0B", bg: "rgba(245,158,11,0.06)", ring: "rgba(245,158,11,0.18)" };
+  if (v <= r.warn) return { label: "주의", color: "#FF8C00", bg: "rgba(255,140,0,0.07)", ring: "rgba(255,140,0,0.2)" };
+  if (v <= r.high) return { label: "높음", color: "#FF6B6B", bg: "rgba(255,107,107,0.07)", ring: "rgba(255,107,107,0.2)" };
+  return { label: "위험", color: "#EF4444", bg: "rgba(239,68,68,0.08)", ring: "rgba(239,68,68,0.25)" };
 };
 const fmtDate = (s) => { const d = new Date(s); return (d.getMonth()+1)+"."+d.getDate()+" "+["일","월","화","수","목","금","토"][d.getDay()]; };
 const todayISO = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
@@ -581,7 +585,7 @@ export default function App() {
               <button onClick={startVoice} style={{width:48,height:48,borderRadius:14,border:voiceListening?"2px solid #FF6B6B":"2px solid "+C.border,background:voiceListening?"rgba(255,107,107,0.08)":C.inputBg,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Mic size={20} color={voiceListening?"#FF6B6B":C.txtL}/></button>
             </div>
             {voiceListening&&<div style={{marginTop:6,fontSize:12,color:"#FF6B6B",fontWeight:600,display:"flex",alignItems:"center",gap:6}}><div style={{width:8,height:8,borderRadius:"50%",background:"#FF6B6B",animation:"pulse 1s infinite"}}/>듣고 있어요... 혈당 수치를 말해주세요</div>}
-            {form.glucose&&(()=>{const lv=getLevel(parseInt(form.glucose)||0,form.type);const rng=getRangeType(form.type);return<div style={{marginTop:8,fontSize:12,fontWeight:600,color:lv.color,display:"flex",alignItems:"center",gap:7}}><span style={{width:9,height:9,borderRadius:"50%",background:lv.color}}/>{lv.label} 범위 <span style={{color:C.txtLLL,fontWeight:400}}>({rng.label} 목표: {rng.normal}~{rng.warn} mg/dL)</span></div>;})()}
+            {form.glucose&&(()=>{const lv=getLevel(parseInt(form.glucose)||0,form.type);const rng=getRangeType(form.type);return<div style={{marginTop:8,fontSize:12,fontWeight:600,color:lv.color,display:"flex",alignItems:"center",gap:7}}><span style={{width:9,height:9,borderRadius:"50%",background:lv.color}}/>{lv.label} <span style={{color:C.txtLLL,fontWeight:400}}>({rng.label} 이상적: {rng.target} mg/dL)</span></div>;})()}
           </div>
           <div><label style={{fontSize:12,fontWeight:700,marginBottom:7,display:"block"}}>측정 시점</label><select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={S.sel}>{mealTypes.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
           <div><label style={{fontSize:12,fontWeight:700,marginBottom:7,display:"flex",alignItems:"center",gap:8}}><Camera size={14}/> 음식 사진 <span style={{fontSize:10,background:C.pri,color:"#fff",padding:"2px 8px",borderRadius:6,fontWeight:700}}>AI 자동 인식</span></label>
@@ -637,7 +641,7 @@ export default function App() {
               <div style={{fontSize:48,fontWeight:800,color:lv.color,fontFamily:"monospace"}}>{r.glucose}</div>
               <div style={{fontSize:13,color:lv.color,fontWeight:700,marginTop:4}}>{lv.label} · {r.type}</div>
               <div style={{fontSize:12,color:C.txtL,marginTop:6}}>{fmtDate(r.date)} · {r.time}</div>
-              <div style={{fontSize:11,color:C.txtLLL,marginTop:4}}>목표 범위: {getRangeType(r.type).normal}~{getRangeType(r.type).warn} mg/dL</div>
+              <div style={{fontSize:11,color:C.txtLLL,marginTop:4}}>이상적 범위: {getRangeType(r.type).target} mg/dL</div>
             </div>
             {r.food&&<div style={{...S.card,marginBottom:12}}>
               <div style={{fontSize:12,fontWeight:700,color:C.priD,marginBottom:8}}>먹은 음식</div>
