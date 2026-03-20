@@ -515,7 +515,7 @@ export default function App() {
           <div key={gi} style={{background:C.card,borderRadius:14,padding:"12px 14px",marginBottom:8}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
               <div><div style={{fontSize:13,fontWeight:700}}>{g.label}</div><div style={{fontSize:10,color:C.txtLLL}}>{g.desc}</div></div>
-              <div style={{fontWeight:800,fontSize:18,color:g.color,fontFamily:"monospace"}}>{goals[g.keys[0]]||130}<span style={{fontSize:10,color:C.txtLLL}}> mg/dL</span></div>
+              <div style={{display:"flex",alignItems:"center",gap:4}}><input type="number" value={goals[g.keys[0]]||130} onChange={e=>{const v=parseInt(e.target.value)||0;setGoals(p=>{const n={...p};g.keys.forEach(k=>{n[k]=v;});return n;});}} style={{width:60,textAlign:"right",fontWeight:800,fontSize:18,color:g.color,fontFamily:"monospace",border:"1.5px solid "+C.border,borderRadius:8,padding:"4px 6px",background:C.inputBg,outline:"none"}}/><span style={{fontSize:10,color:C.txtLLL}}>mg/dL</span></div>
             </div>
             <input type="range" min={g.min} max={g.max} value={goals[g.keys[0]]||130} onChange={e=>{const v=parseInt(e.target.value);setGoals(p=>{const n={...p};g.keys.forEach(k=>{n[k]=v;});return n;});}} style={{width:"100%",accentColor:g.color}}/>
           </div>
