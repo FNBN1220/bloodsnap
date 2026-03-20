@@ -46,13 +46,26 @@ const analyzeFood = async (base64) => {
 /* ─── AI Diet Recommendation ─── */
 const getAIDiet = async (records) => {
   try {
-    const recent = records.slice(-30);
+    const recent = records.slice(-60);
+    if(!recent.length) return null;
     const avgGlucose = Math.round(recent.reduce((s,r)=>s+r.glucose,0)/recent.length);
-    const highFoods = {};
-    recent.filter(r=>r.food&&r.glucose>140).forEach(r=>{highFoods[r.food]=(highFoods[r.food]||0)+1;});
-    const topBad = Object.entries(highFoods).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n])=>n).join(", ");
+    // Detailed stats
+    const preM=recent.filter(r=>r.type&&r.type.includes("식전"));
+    const postM=recent.filter(r=>r.type&&r.type.includes("식후"));
+    const avgPre=preM.length?Math.round(preM.reduce((s,r)=>s+r.glucose,0)/preM.length):null;
+    const avgPost=postM.length?Math.round(postM.reduce((s,r)=>s+r.glucose,0)/postM.length):null;
+    // Foods that raised blood sugar
+    const highFoods={};const goodFoods={};
+    recent.filter(r=>r.food&&r.glucose>160).forEach(r=>{highFoods[r.food]=(highFoods[r.food]||0)+1;});
+    recent.filter(r=>r.food&&r.type&&r.type.includes("식후")&&r.glucose<=140).forEach(r=>{goodFoods[r.food]=(goodFoods[r.food]||0)+1;});
+    const topBad=Object.entries(highFoods).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,c])=>n+"("+c+"회)").join(", ");
+    const topGood=Object.entries(goodFoods).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([n,c])=>n+"("+c+"회)").join(", ");
+    // Spike patterns
+    const spikes={};
+    ["아침","점심","저녁"].forEach(meal=>{const posts=recent.filter(r=>r.type===meal+" 식후");const pres=recent.filter(r=>r.type===meal+" 식전");
+      if(posts.length&&pres.length){const avgP=Math.round(posts.reduce((s,r)=>s+r.glucose,0)/posts.length);const avgR=Math.round(pres.reduce((s,r)=>s+r.glucose,0)/pres.length);spikes[meal]={post:avgP,pre:avgR,delta:avgP-avgR};}});
     const res = await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({mode:"diet", avgGlucose, topBad})});
+      body:JSON.stringify({mode:"diet", avgGlucose, avgPre, avgPost, topBad, topGood, spikes:JSON.stringify(spikes)})});
     return await res.json();
   } catch(e) { return null; }
 };
@@ -137,26 +150,31 @@ export default function App() {
   const [splash,setSplash]=useState(true);
   const [analyzing,setAnalyzing]=useState(false);
   const [aiResult,setAiResult]=useState(null);
-  const [goalBg,setGoalBg]=useState(130);
+  const defaultGoals={"아침 식전":110,"아침 식후":160,"점심 식전":110,"점심 식후":160,"저녁 식전":110,"저녁 식후":160,"공복":110,"간식 후":160,"취침 전":130};
+  const [goals,setGoals]=useState(()=>loadState("goals",defaultGoals));
+  const getGoal=(type)=>goals[type]||130;
+  useEffect(()=>{try{localStorage.setItem("bs_goals",JSON.stringify(goals));}catch{}},[goals]);
   const [selectedDate,setSelectedDate]=useState(todayISO());
   const [toast,setToast]=useState(null);
   const [detailRecord,setDetailRecord]=useState(null);
   const [shareCode]=useState("SNAP-"+Math.random().toString(36).slice(2,8).toUpperCase());
   // New states
   const [medChecks,setMedChecks]=useState(()=>loadState("medChecks",{}));
-  const [waterCups,setWaterCups]=useState(()=>loadState("waterCups",0));
+  const [waterCups,setWaterCups]=useState(()=>{const saved=loadState("waterCups",{date:"",cups:0});return saved.date===todayISO()?saved.cups:0;});
   const [exercises,setExercises]=useState(()=>loadState("exercises",[]));
   const [hospitals,setHospitals]=useState(()=>loadState("hospitals",[]));
   const [dietRec,setDietRec]=useState(null);
   const [dietLoading,setDietLoading]=useState(false);
   const [healthTab,setHealthTab]=useState("meds");
   const [voiceListening,setVoiceListening]=useState(false);
+  const [hospModal,setHospModal]=useState(false);
+  const [hospForm,setHospForm]=useState({date:todayISO(),type:"정기 검진",hba1c:"",note:""});
   const fileRef=useRef(null);
 
   useEffect(()=>{const t=setTimeout(()=>setSplash(false),2000);return()=>clearTimeout(t);},[]);
   useEffect(()=>{try{localStorage.setItem("bs_records",JSON.stringify(records));}catch{}},[records]);
   useEffect(()=>{try{localStorage.setItem("bs_medChecks",JSON.stringify(medChecks));}catch{}},[medChecks]);
-  useEffect(()=>{try{localStorage.setItem("bs_waterCups",JSON.stringify(waterCups));}catch{}},[waterCups]);
+  useEffect(()=>{try{localStorage.setItem("bs_waterCups",JSON.stringify({date:todayISO(),cups:waterCups}));}catch{}},[waterCups]);
   useEffect(()=>{try{localStorage.setItem("bs_exercises",JSON.stringify(exercises));}catch{}},[exercises]);
   useEffect(()=>{try{localStorage.setItem("bs_hospitals",JSON.stringify(hospitals));}catch{}},[hospitals]);
   const showToast=msg=>{setToast(msg);setTimeout(()=>setToast(null),2500);};
@@ -181,10 +199,10 @@ export default function App() {
   // Goal rate
   const last7d=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);last7d.push(d.toISOString().split("T")[0]);}
   const last7Rec=records.filter(r=>last7d.includes(r.date));
-  const goalRate=last7Rec.length?Math.round((last7Rec.filter(r=>r.glucose<=goalBg).length/last7Rec.length)*100):0;
+  const goalRate=last7Rec.length?Math.round((last7Rec.filter(r=>r.glucose<=getGoal(r.type)).length/last7Rec.length)*100):0;
   // Glucose pattern analysis
   const patterns={};
-  records.forEach(r=>{if(!patterns[r.type])patterns[r.type]={total:0,count:0,highs:0};patterns[r.type].total+=r.glucose;patterns[r.type].count++;if(r.glucose>goalBg)patterns[r.type].highs++;});
+  records.forEach(r=>{if(!patterns[r.type])patterns[r.type]={total:0,count:0,highs:0};patterns[r.type].total+=r.glucose;patterns[r.type].count++;if(r.glucose>getGoal(r.type))patterns[r.type].highs++;});
   const dangerTimes=Object.entries(patterns).filter(([,d])=>(d.highs/d.count)>0.5).map(([t,d])=>({type:t,avg:Math.round(d.total/d.count),risk:Math.round((d.highs/d.count)*100)}));
 
   const meds=[{name:"메트포르민 500mg",times:["08:00","20:00"]},{name:"혈당 측정",times:["07:30","12:00","18:30"]}];
@@ -264,9 +282,9 @@ export default function App() {
         </div>
         <div style={{fontSize:20,fontWeight:800,marginTop:10}}>{new Date().toLocaleDateString("ko-KR",{month:"long",day:"numeric",weekday:"long"})}</div>
         <div style={{display:"flex",alignItems:"center",gap:16,marginTop:18}}>
-          <GoalRing current={todayAvg} goal={goalBg}/>
+          <GoalRing current={todayAvg} goal={goals["아침 식전"]}/>
           <div style={{flex:1,display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-            <div style={{background:"rgba(255,255,255,0.06)",borderRadius:14,padding:"10px 12px"}}><div style={{fontSize:9,color:"rgba(255,255,255,0.4)",fontWeight:600}}>목표</div><div style={{fontSize:18,fontWeight:800,marginTop:2,fontFamily:"monospace"}}>{goalBg}<span style={{fontSize:10,opacity:0.4}}> mg/dL</span></div></div>
+            <div style={{background:"rgba(255,255,255,0.06)",borderRadius:14,padding:"10px 12px"}}><div style={{fontSize:9,color:"rgba(255,255,255,0.4)",fontWeight:600}}>식전 목표</div><div style={{fontSize:18,fontWeight:800,marginTop:2,fontFamily:"monospace"}}>{goals["아침 식전"]}<span style={{fontSize:10,opacity:0.4}}> mg/dL</span></div></div>
             <div style={{background:"rgba(255,255,255,0.06)",borderRadius:14,padding:"10px 12px"}}><div style={{fontSize:9,color:"rgba(255,255,255,0.4)",fontWeight:600}}>HbA1c 추정</div><div style={{fontSize:18,fontWeight:800,marginTop:2,fontFamily:"monospace",color:hba1c&&parseFloat(hba1c)<7?"#00C48C":"#FFB340"}}>{hba1c||"—"}<span style={{fontSize:10,opacity:0.4}}>%</span></div></div>
             <div style={{background:"rgba(255,255,255,0.06)",borderRadius:14,padding:"10px 12px",gridColumn:"span 2"}}><div style={{fontSize:9,color:"rgba(255,255,255,0.4)",fontWeight:600}}>7일 목표 달성률</div>
               <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}><div style={{flex:1,height:6,borderRadius:3,background:"rgba(255,255,255,0.08)",overflow:"hidden"}}><div style={{height:"100%",width:goalRate+"%",borderRadius:3,background:goalRate>=70?"#00C48C":goalRate>=40?"#FFB340":"#FF6B6B"}}/></div>
@@ -279,8 +297,27 @@ export default function App() {
         <div style={{fontSize:13,fontWeight:700,color:"#FF6B6B",marginBottom:8,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={15}/> 혈당 주의 패턴</div>
         {dangerTimes.map((d,i)=><div key={i} style={{fontSize:12,color:C.txtL,marginBottom:4}}><span style={{fontWeight:700,color:"#FF6B6B"}}>{d.type}</span> — 평균 {d.avg}mg/dL, 목표 초과 {d.risk}%</div>)}
       </div></div>}
-      <div style={S.sec}><div style={S.secT}><TrendingUp size={17} color={C.pri}/> 7일 혈당 추이</div><div style={S.card}><Chart records={records}/></div></div>
-      {/* Quick actions: water + meds */}
+      <div style={S.sec}><div style={S.secT}><TrendingUp size={17} color={C.pri}/> 7일 혈당 추이</div><div style={S.card}><Chart records={records}/>
+        {/* Daily health indicators */}
+        <div style={{display:"flex",justifyContent:"space-between",padding:"10px 4px 0",borderTop:"1px solid "+C.border,marginTop:8}}>
+          {(()=>{const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+            const hasRec=records.some(r=>r.date===ds);const hasEx=exercises.some(e=>e.date===ds);
+            const medDone=Object.keys(medChecks).filter(k=>k.startsWith(ds)&&medChecks[k]).length;const medTotal=meds.reduce((s,m)=>s+m.times.length,0);
+            days.push(<div key={i} style={{flex:1,textAlign:"center",fontSize:9}}>
+              <div style={{display:"flex",justifyContent:"center",gap:2,marginBottom:2}}>
+                <span title="혈당" style={{opacity:hasRec?1:0.2}}>💉</span>
+                <span title="운동" style={{opacity:hasEx?1:0.2}}>🏃</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"center",gap:2}}>
+                <span title="약" style={{opacity:medDone>=medTotal&&medTotal>0?1:medDone>0?0.5:0.2}}>💊</span>
+              </div>
+            </div>);} return days;})()}
+        </div>
+        <div style={{display:"flex",justifyContent:"center",gap:12,marginTop:6,fontSize:9,color:C.txtLLL}}>
+          <span>💉 혈당</span><span>🏃 운동</span><span>💊 약</span>
+        </div>
+      </div></div>
+      {/* Quick actions: water + meds + exercise */}
       <div style={S.sec}><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         <div style={{...S.card,padding:14,cursor:"pointer"}} onClick={()=>{setWaterCups(p=>p+1);showToast("물 "+((waterCups+1)*250)+"ml 기록");}}>
           <div style={{display:"flex",alignItems:"center",gap:8}}><Droplets size={20} color={C.pri}/><div><div style={{fontSize:12,fontWeight:700}}>수분 섭취</div><div style={{fontSize:20,fontWeight:800,color:C.pri,fontFamily:"monospace"}}>{waterCups*250}<span style={{fontSize:11,color:C.txtLLL}}>ml</span></div></div></div>
@@ -357,14 +394,35 @@ export default function App() {
         </div></div>
       </div>}
       {/* Hospital */}
-      {healthTab==="hospital"&&<div style={S.sec}><div style={S.secT}><Heart size={17} color={C.pri}/> 병원 방문 기록</div>
+      {healthTab==="hospital"&&<div style={S.sec}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+        <div style={S.secT}><Heart size={17} color={C.pri}/> 병원 방문 기록</div>
+        <button onClick={()=>setHospModal(true)} style={{background:C.pri,color:"#fff",border:"none",borderRadius:10,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:4}}><Plus size={14}/> 추가</button>
+      </div>
+        {!hospitals.length&&<div style={{...S.card,textAlign:"center",padding:"28px 0",color:C.txtLLL}}><Heart size={28} strokeWidth={1.5} color={C.txtLLL} style={{margin:"0 auto 8px"}}/><div style={{fontSize:13,fontWeight:600,color:C.txtL}}>병원 방문 기록이 없어요</div><div style={{fontSize:11,color:C.txtLLL,marginTop:4}}>위 "추가" 버튼으로 기록해보세요</div></div>}
         {hospitals.map((h,i)=><div key={i} style={{...S.card,marginBottom:10}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div><div style={{fontWeight:700,fontSize:14}}>{h.type}</div><div style={{fontSize:12,color:C.txtLLL,marginTop:2}}>{h.date}</div></div>
-            {h.hba1c&&<div style={{textAlign:"right"}}><div style={{fontSize:10,color:C.txtLLL}}>HbA1c</div><div style={{fontSize:20,fontWeight:800,color:parseFloat(h.hba1c)<7?"#00C48C":"#FFB340",fontFamily:"monospace"}}>{h.hba1c}%</div></div>}
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              {h.hba1c&&<div style={{textAlign:"right"}}><div style={{fontSize:10,color:C.txtLLL}}>HbA1c</div><div style={{fontSize:20,fontWeight:800,color:parseFloat(h.hba1c)<7?"#00C48C":"#FFB340",fontFamily:"monospace"}}>{h.hba1c}%</div></div>}
+              <button onClick={()=>{if(confirm("이 기록을 삭제하시겠습니까?"))setHospitals(p=>p.filter((_,j)=>j!==i));}} style={{background:"none",border:"none",cursor:"pointer",color:C.txtLLL,padding:4}}><Trash2 size={14}/></button>
+            </div>
           </div>
           {h.note&&<div style={{marginTop:8,fontSize:12,color:C.txtL,background:C.bg,padding:"8px 12px",borderRadius:10}}>{h.note}</div>}
         </div>)}
+        {/* Hospital Add Modal */}
+        {hospModal&&<div style={S.ov} onClick={()=>setHospModal(false)}><div style={S.sht} onClick={e=>e.stopPropagation()}>
+          <div style={S.hdl}/>
+          <div style={{fontSize:18,fontWeight:800,marginBottom:20}}>병원 방문 기록 추가</div>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <div><label style={{fontSize:12,fontWeight:700,marginBottom:6,display:"block"}}>방문 날짜</label><input type="date" value={hospForm.date} onChange={e=>setHospForm(p=>({...p,date:e.target.value}))} style={S.inp}/></div>
+            <div><label style={{fontSize:12,fontWeight:700,marginBottom:6,display:"block"}}>방문 유형</label><select value={hospForm.type} onChange={e=>setHospForm(p=>({...p,type:e.target.value}))} style={S.sel}>
+              <option>정기 검진</option><option>혈액 검사</option><option>안과 검진</option><option>신장 검사</option><option>발 검진</option><option>기타 진료</option>
+            </select></div>
+            <div><label style={{fontSize:12,fontWeight:700,marginBottom:6,display:"block"}}>HbA1c (당화혈색소) %</label><input type="number" step="0.1" placeholder="예: 6.8" value={hospForm.hba1c} onChange={e=>setHospForm(p=>({...p,hba1c:e.target.value}))} style={S.inp}/></div>
+            <div><label style={{fontSize:12,fontWeight:700,marginBottom:6,display:"block"}}>의사 소견 / 메모</label><input type="text" placeholder="예: 메트포르민 유지, 식단 관리 강화" value={hospForm.note} onChange={e=>setHospForm(p=>({...p,note:e.target.value}))} style={S.inp}/></div>
+            <button onClick={()=>{setHospitals(p=>[{...hospForm},...p]);setHospForm({date:todayISO(),type:"정기 검진",hba1c:"",note:""});setHospModal(false);showToast("병원 기록이 저장되었습니다");}} style={S.btn}>저장</button>
+          </div>
+        </div></div>}
       </div>}
       <Footer/>
     </>
@@ -400,20 +458,27 @@ export default function App() {
           </div></div>
         </div>
         {/* AI Diet Recommendation */}
-        <div style={S.sec}><div style={S.secT}><Zap size={17} color={C.pri}/> AI 식단 추천</div>
+        <div style={S.sec}><div style={S.secT}><Zap size={17} color={C.pri}/> AI 맞춤 식단</div>
           {!dietRec?<button onClick={loadDiet} disabled={dietLoading} style={{...S.card,width:"100%",cursor:"pointer",border:"2px dashed "+C.border,textAlign:"center",opacity:dietLoading?0.6:1}}>
-            {dietLoading?<div style={{padding:"12px 0"}}><Search size={20} color={C.pri} style={{animation:"spin 1.5s linear infinite"}}/><div style={{fontSize:13,fontWeight:600,marginTop:8}}>AI가 맞춤 식단을 추천하고 있어요...</div></div>
-            :<div style={{padding:"12px 0"}}><Zap size={24} color={C.pri}/><div style={{fontSize:13,fontWeight:600,marginTop:8}}>혈당 데이터 기반 AI 맞춤 식단 추천받기</div><div style={{fontSize:11,color:C.txtLLL,marginTop:4}}>최근 기록을 분석해서 추천해드려요</div></div>}
+            {dietLoading?<div style={{padding:"12px 0"}}><Search size={20} color={C.pri} style={{animation:"spin 1.5s linear infinite"}}/><div style={{fontSize:13,fontWeight:600,marginTop:8}}>혈당 데이터를 분석하고 있어요...</div><div style={{fontSize:11,color:C.txtLLL,marginTop:4}}>맞춤 식단 생성 중...</div></div>
+            :<div style={{padding:"12px 0"}}><Zap size={24} color={C.pri}/><div style={{fontSize:13,fontWeight:600,marginTop:8}}>내 혈당 데이터 기반 맞춤 식단 추천</div><div style={{fontSize:11,color:C.txtLLL,marginTop:4}}>실제 혈당 기록을 분석해서 추천해드려요</div></div>}
           </button>
           :<div style={S.card}>
+            {dietRec.theme&&<div style={{textAlign:"center",padding:"10px 0 14px",borderBottom:"1px solid "+C.border,marginBottom:10}}><div style={{fontSize:15,fontWeight:800,color:C.priD}}>{dietRec.theme}</div></div>}
             {[{key:"breakfast",label:"아침",Icon:Sunrise},{key:"lunch",label:"점심",Icon:Sun},{key:"dinner",label:"저녁",Icon:Moon}].map(({key,label,Icon})=>dietRec[key]&&(
-              <div key={key} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:key!=="dinner"?"1px solid "+C.border:"none"}}>
-                <div style={{width:40,height:40,borderRadius:12,background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={18} color={C.pri}/></div>
-                <div style={{flex:1}}><div style={{fontWeight:700,fontSize:13}}>{label}: {dietRec[key].menu}</div><div style={{fontSize:11,color:C.txtL,marginTop:2}}>{dietRec[key].desc}</div></div>
+              <div key={key} style={{padding:"12px 0",borderBottom:key!=="dinner"?"1px solid "+C.border:"none"}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+                  <div style={{width:36,height:36,borderRadius:10,background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={16} color={C.pri}/></div>
+                  <div style={{fontWeight:700,fontSize:14,color:C.txt}}>{label}: {dietRec[key].menu}</div>
+                </div>
+                <div style={{fontSize:12,color:C.txtL,marginLeft:46,marginBottom:4}}>{dietRec[key].desc}</div>
+                {dietRec[key].reason&&<div style={{fontSize:11,color:C.priD,marginLeft:46,background:"rgba(56,189,248,0.05)",padding:"6px 10px",borderRadius:8}}>{dietRec[key].reason}</div>}
               </div>
             ))}
-            {dietRec.tip&&<div style={{marginTop:10,fontSize:12,color:C.priD,background:"rgba(56,189,248,0.06)",padding:"10px 12px",borderRadius:10,display:"flex",alignItems:"center",gap:6}}><Lightbulb size={14}/> {dietRec.tip}</div>}
-            <button onClick={loadDiet} style={{marginTop:10,width:"100%",padding:10,borderRadius:10,border:"1px solid "+C.border,background:C.bg,fontSize:12,fontWeight:600,cursor:"pointer",color:C.txtL}}>다시 추천받기</button>
+            {dietRec.snack&&<div style={{marginTop:10,fontSize:12,color:"#00C48C",background:"rgba(0,196,140,0.05)",padding:"10px 12px",borderRadius:10,display:"flex",alignItems:"center",gap:6}}><CheckCircle size={14}/> 간식: {dietRec.snack}</div>}
+            {dietRec.avoid&&<div style={{marginTop:6,fontSize:12,color:"#FF6B6B",background:"rgba(255,107,107,0.05)",padding:"10px 12px",borderRadius:10,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={14}/> 피하세요: {dietRec.avoid}</div>}
+            {dietRec.tip&&<div style={{marginTop:6,fontSize:12,color:C.priD,background:"rgba(56,189,248,0.06)",padding:"10px 12px",borderRadius:10,display:"flex",alignItems:"center",gap:6}}><Lightbulb size={14}/> {dietRec.tip}</div>}
+            <button onClick={loadDiet} style={{marginTop:12,width:"100%",padding:10,borderRadius:10,border:"1px solid "+C.border,background:C.bg,fontSize:12,fontWeight:600,cursor:"pointer",color:C.txtL}}>다른 식단 추천받기</button>
           </div>}
         </div>
         {/* Meal Delta */}
@@ -440,8 +505,22 @@ export default function App() {
   const renderSettings=()=>{if(!settingsOpen)return null;return(
     <div style={S.ov} onClick={()=>setSettingsOpen(false)}><div style={S.sht} onClick={e=>e.stopPropagation()}>
       <div style={S.hdl}/><div style={{fontSize:19,fontWeight:800,marginBottom:24,display:"flex",alignItems:"center",gap:10}}><Settings size={20} color={C.pri}/> 설정</div>
-      <div style={{marginBottom:24}}><div style={{fontSize:14,fontWeight:700,marginBottom:10,display:"flex",alignItems:"center",gap:7}}><Target size={16} color={C.pri}/> 목표 혈당</div>
-        <div style={{display:"flex",alignItems:"center",gap:12}}><input type="range" min="80" max="200" value={goalBg} onChange={e=>setGoalBg(parseInt(e.target.value))} style={{flex:1,accentColor:C.pri}}/><div style={{minWidth:60,fontWeight:800,fontSize:20,color:C.pri,fontFamily:"monospace"}}>{goalBg}</div></div>
+      <div style={{marginBottom:24}}><div style={{fontSize:14,fontWeight:700,marginBottom:14,display:"flex",alignItems:"center",gap:7}}><Target size={16} color={C.pri}/> 측정 시점별 목표 혈당</div>
+        {[
+          {label:"식전 (아침/점심/저녁)",keys:["아침 식전","점심 식전","저녁 식전"],min:70,max:160,color:"#00C48C",desc:"권장 80~130"},
+          {label:"식후 (아침/점심/저녁)",keys:["아침 식후","점심 식후","저녁 식후"],min:100,max:220,color:"#FFB340",desc:"권장 90~180"},
+          {label:"취침 전",keys:["취침 전"],min:80,max:180,color:"#5B8DEF",desc:"권장 100~140"},
+          {label:"간식 후",keys:["간식 후"],min:100,max:200,color:"#F59E0B",desc:"권장 ~180"},
+        ].map((g,gi)=>(
+          <div key={gi} style={{background:C.card,borderRadius:14,padding:"12px 14px",marginBottom:8}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+              <div><div style={{fontSize:13,fontWeight:700}}>{g.label}</div><div style={{fontSize:10,color:C.txtLLL}}>{g.desc}</div></div>
+              <div style={{fontWeight:800,fontSize:18,color:g.color,fontFamily:"monospace"}}>{goals[g.keys[0]]||130}<span style={{fontSize:10,color:C.txtLLL}}> mg/dL</span></div>
+            </div>
+            <input type="range" min={g.min} max={g.max} value={goals[g.keys[0]]||130} onChange={e=>{const v=parseInt(e.target.value);setGoals(p=>{const n={...p};g.keys.forEach(k=>{n[k]=v;});return n;});}} style={{width:"100%",accentColor:g.color}}/>
+          </div>
+        ))}
+        <button onClick={()=>{setGoals(defaultGoals);showToast("기본값으로 초기화됨");}} style={{width:"100%",padding:10,borderRadius:10,border:"1px solid "+C.border,background:C.bg,fontSize:12,fontWeight:600,cursor:"pointer",color:C.txtLLL,marginTop:4}}>기본값으로 초기화</button>
       </div>
       <div style={{marginBottom:24}}><div style={{fontSize:14,fontWeight:700,marginBottom:10,display:"flex",alignItems:"center",gap:7}}><Download size={16} color={C.pri}/> 기록 내보내기</div>
         <button onClick={exportCSV} style={{width:"100%",padding:14,borderRadius:14,border:"2px solid "+C.border,background:C.card,fontSize:14,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Download size={16}/> CSV 다운로드</button>
