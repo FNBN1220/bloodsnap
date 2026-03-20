@@ -22,11 +22,27 @@ export default async function handler(req, res) {
     let messages;
 
     if (mode === 'diet') {
-      // AI Diet recommendation
-      const { avgGlucose, topBad } = req.body;
+      const { avgGlucose, avgPre, avgPost, topBad, topGood, spikes } = req.body;
       messages = [{
         role: "user",
-        content: `당뇨 환자의 최근 평균혈당: ${avgGlucose}mg/dL. 혈당을 많이 올린 음식: ${topBad || "없음"}. 한국인 식단 기준으로 혈당 관리에 좋은 아침/점심/저녁 메뉴를 추천해주세요. JSON만 응답:\n{"breakfast":{"menu":"메뉴명","desc":"설명","gi":"low/medium"},"lunch":{"menu":"메뉴명","desc":"설명","gi":"low/medium"},"dinner":{"menu":"메뉴명","desc":"설명","gi":"low/medium"},"tip":"전체적인 식단 조언 한 줄"}`
+        content: `당신은 당뇨 전문 영양사입니다. 아래 환자의 실제 혈당 데이터를 분석하고, 내일 하루 식단을 추천해주세요.
+
+[환자 혈당 데이터]
+- 전체 평균 혈당: ${avgGlucose}mg/dL
+- 식전 평균: ${avgPre || "데이터 부족"}mg/dL  
+- 식후 평균: ${avgPost || "데이터 부족"}mg/dL
+- 식사별 혈당 변화: ${spikes || "데이터 부족"}
+- 혈당을 많이 올린 음식: ${topBad || "데이터 부족"}
+- 혈당을 잘 유지한 음식: ${topGood || "데이터 부족"}
+
+[필수 조건]
+1. 하루 식단의 일관성: 아침/점심/저녁이 같은 음식 컨셉이어야 함 (예: 하루 전체가 "한식 담백 코스" 또는 "저탄고지 식단")
+2. 직장인 현실 반영: 점심은 구내식당/편의점/식당에서 쉽게 먹을 수 있는 메뉴
+3. 데이터 기반: 위 환자의 식후 혈당이 높다면 탄수화물 줄이기, 식전이 높다면 저녁 간식 제한 등 구체적 근거 제시
+4. 한국인 식단 기준
+
+JSON만 응답:
+{"theme":"오늘의 식단 컨셉 한 줄","breakfast":{"menu":"메뉴명","desc":"구체적 구성 (예: 잡곡밥 반공기 + 된장국 + 계란후라이 + 김치)","reason":"이 환자에게 이 메뉴를 추천하는 이유","gi":"low/medium"},"lunch":{"menu":"메뉴명","desc":"구체적 구성","reason":"추천 이유","gi":"low/medium"},"dinner":{"menu":"메뉴명","desc":"구체적 구성","reason":"추천 이유","gi":"low/medium"},"snack":"간식 추천 (있다면)","avoid":"오늘 피해야 할 음식","tip":"이 환자의 혈당 데이터를 분석한 맞춤 조언"}`
       }];
     } else {
       // Food image analysis
