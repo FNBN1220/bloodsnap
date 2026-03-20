@@ -1,18 +1,31 @@
 import { useState, useEffect, useRef } from "react";
-import { Home, Calendar, Settings, Plus, X, TrendingUp, Clock, BarChart3, Camera, Download, Users, Target, AlertTriangle, Lightbulb, ChevronLeft, ChevronRight, Droplets, FileText, Copy, Bell, Sun, Moon, Activity, Zap, Search, CheckCircle, BarChart2, Sunrise, Heart, Pill } from "lucide-react";
+import { Home, Calendar, Settings, Plus, X, TrendingUp, Clock, BarChart3, Camera, Download, Users, Target, AlertTriangle, Lightbulb, ChevronLeft, ChevronRight, Droplets, FileText, Copy, Bell, Sun, Moon, Activity, Zap, Search, CheckCircle, BarChart2, Sunrise, Heart, Pill, Trash2, Mic } from "lucide-react";
 
 const LOGO = "data:image/png;base64,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";
 
 /* ─── Helpers ─── */
-const getLevel = (v) => {
-  if (v < 70) return { label: "저혈당", color: "#5B8DEF", bg: "rgba(91,141,239,0.08)", ring: "rgba(91,141,239,0.2)" };
-  if (v <= 99) return { label: "정상", color: "#00C48C", bg: "rgba(0,196,140,0.06)", ring: "rgba(0,196,140,0.18)" };
-  if (v <= 125) return { label: "경계", color: "#FFB340", bg: "rgba(255,179,64,0.07)", ring: "rgba(255,179,64,0.2)" };
-  if (v <= 180) return { label: "높음", color: "#FF6B6B", bg: "rgba(255,107,107,0.07)", ring: "rgba(255,107,107,0.2)" };
+/* ─── Blood glucose ranges by measurement type (대한당뇨병학회 기준) ─── */
+const RANGES = {
+  "식전": { low: 70, normal: 80, warn: 130, high: 160, label: "식전/공복" },
+  "식후": { low: 70, normal: 90, warn: 180, high: 200, label: "식후 2시간" },
+  "취침": { low: 70, normal: 100, warn: 140, high: 160, label: "취침 전" },
+};
+const getRangeType = (type) => {
+  if (!type) return RANGES["식전"];
+  if (type.includes("식후") || type.includes("간식")) return RANGES["식후"];
+  if (type.includes("취침")) return RANGES["취침"];
+  return RANGES["식전"];
+};
+const getLevel = (v, type) => {
+  const r = getRangeType(type);
+  if (v < r.low) return { label: "저혈당", color: "#5B8DEF", bg: "rgba(91,141,239,0.08)", ring: "rgba(91,141,239,0.2)" };
+  if (v <= r.normal) return { label: "양호", color: "#00C48C", bg: "rgba(0,196,140,0.06)", ring: "rgba(0,196,140,0.18)" };
+  if (v <= r.warn) return { label: "정상", color: "#00C48C", bg: "rgba(0,196,140,0.06)", ring: "rgba(0,196,140,0.18)" };
+  if (v <= r.high) return { label: "주의", color: "#FFB340", bg: "rgba(255,179,64,0.07)", ring: "rgba(255,179,64,0.2)" };
   return { label: "위험", color: "#EF4444", bg: "rgba(239,68,68,0.07)", ring: "rgba(239,68,68,0.25)" };
 };
 const fmtDate = (s) => { const d = new Date(s); return (d.getMonth()+1)+"."+d.getDate()+" "+["일","월","화","수","목","금","토"][d.getDay()]; };
-const todayISO = () => new Date().toISOString().split("T")[0];
+const todayISO = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 const nowTime = () => new Date().toTimeString().slice(0,5);
 const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 
@@ -94,12 +107,12 @@ function CalendarView({records,selectedDate,onSelect}) {
   const cells=[];for(let i=0;i<fd;i++)cells.push(null);for(let d=1;d<=dim;d++)cells.push(d);
   const ds=d=>yr+"-"+String(mo+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
   return(<div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginZaptom:16}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
       <button onClick={()=>setVd(new Date(yr,mo-1,1))} style={{background:C.cardH,border:"none",width:34,height:34,borderRadius:10,cursor:"pointer",color:C.txtL,display:"flex",alignItems:"center",justifyContent:"center"}}><ChevronLeft size={18}/></button>
       <div style={{fontWeight:800,fontSize:17,color:C.txt}}>{yr}년 {mo+1}월</div>
       <button onClick={()=>setVd(new Date(yr,mo+1,1))} style={{background:C.cardH,border:"none",width:34,height:34,borderRadius:10,cursor:"pointer",color:C.txtL,display:"flex",alignItems:"center",justifyContent:"center"}}><ChevronRight size={18}/></button>
     </div>
-    <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,textAlign:"center",marginZaptom:8}}>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,textAlign:"center",marginBottom:8}}>
       {["일","월","화","수","목","금","토"].map(d=><div key={d} style={{fontSize:10.5,fontWeight:600,color:d==="일"?"#FF6B6B":d==="토"?"#5B8DEF":C.txtLLL,padding:"4px 0"}}>{d}</div>)}
     </div>
     <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
@@ -127,6 +140,7 @@ export default function App() {
   const [goalBg,setGoalBg]=useState(130);
   const [selectedDate,setSelectedDate]=useState(todayISO());
   const [toast,setToast]=useState(null);
+  const [detailRecord,setDetailRecord]=useState(null);
   const [shareCode]=useState("SNAP-"+Math.random().toString(36).slice(2,8).toUpperCase());
   // New states
   const [medChecks,setMedChecks]=useState(()=>loadState("medChecks",{}));
@@ -136,6 +150,7 @@ export default function App() {
   const [dietRec,setDietRec]=useState(null);
   const [dietLoading,setDietLoading]=useState(false);
   const [healthTab,setHealthTab]=useState("meds");
+  const [voiceListening,setVoiceListening]=useState(false);
   const fileRef=useRef(null);
 
   useEffect(()=>{const t=setTimeout(()=>setSplash(false),2000);return()=>clearTimeout(t);},[]);
@@ -145,6 +160,17 @@ export default function App() {
   useEffect(()=>{try{localStorage.setItem("bs_exercises",JSON.stringify(exercises));}catch{}},[exercises]);
   useEffect(()=>{try{localStorage.setItem("bs_hospitals",JSON.stringify(hospitals));}catch{}},[hospitals]);
   const showToast=msg=>{setToast(msg);setTimeout(()=>setToast(null),2500);};
+  const deleteRecord=(id)=>{setRecords(p=>p.filter(r=>r.id!==id));setDetailRecord(null);showToast("기록이 삭제되었습니다");};
+  const startVoice=()=>{
+    if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){showToast("이 브라우저에서 음성 인식을 지원하지 않습니다");return;}
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const recog=new SR();
+    recog.lang="ko-KR";recog.continuous=false;recog.interimResults=false;
+    recog.onstart=()=>setVoiceListening(true);
+    recog.onresult=(e)=>{const txt=e.results[0][0].transcript;const nums=txt.replace(/[^0-9]/g,"");if(nums){setForm(p=>({...p,glucose:nums}));showToast("혈당 "+nums+" 입력됨");}else{showToast("숫자를 인식하지 못했어요. 다시 말해주세요");}};
+    recog.onerror=()=>{setVoiceListening(false);showToast("음성 인식에 실패했어요");};
+    recog.onend=()=>setVoiceListening(false);
+    recog.start();
+  };
 
   const ts=todayISO();
   const todayRec=records.filter(r=>r.date===ts);
@@ -195,7 +221,7 @@ export default function App() {
     glow:{position:"absolute",top:-60,right:-30,width:180,height:180,borderRadius:"50%",background:"radial-gradient(circle,rgba(56,189,248,0.2),transparent 70%)",filter:"blur(20px)"},
     badge:{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(56,189,248,0.2)",borderRadius:24,padding:"5px 14px 5px 8px",fontSize:11.5,fontWeight:600,color:"#BAE6FD",border:"1px solid rgba(56,189,248,0.15)"},
     sec:{padding:"20px 18px 8px"},
-    secT:{fontSize:15,fontWeight:750,color:C.txt,marginZaptom:14,display:"flex",alignItems:"center",gap:8},
+    secT:{fontSize:15,fontWeight:750,color:C.txt,marginBottom:14,display:"flex",alignItems:"center",gap:8},
     card:{background:C.card,borderRadius:22,padding:18,boxShadow:"0 2px 20px rgba(0,0,0,0.03)",border:"1px solid rgba(0,0,0,0.04)"},
     nav:{position:"sticky",bottom:0,background:"rgba(224,240,252,0.95)",backdropFilter:"blur(24px)",borderTop:"1px solid rgba(0,0,0,0.04)",display:"flex",padding:"4px 0 22px",zIndex:100},
     navI:a=>({flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:"pointer",border:"none",background:"none",padding:"7px 0",color:a?C.pri:C.txtLLL,fontWeight:a?700:500,fontSize:9.5}),
@@ -250,8 +276,8 @@ export default function App() {
       </div></div>
       {/* Pattern warnings */}
       {dangerTimes.length>0&&<div style={S.sec}><div style={{...S.card,background:"rgba(255,107,107,0.04)",border:"1px solid rgba(255,107,107,0.1)"}}>
-        <div style={{fontSize:13,fontWeight:700,color:"#FF6B6B",marginZaptom:8,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={15}/> 혈당 주의 패턴</div>
-        {dangerTimes.map((d,i)=><div key={i} style={{fontSize:12,color:C.txtL,marginZaptom:4}}><span style={{fontWeight:700,color:"#FF6B6B"}}>{d.type}</span> — 평균 {d.avg}mg/dL, 목표 초과 {d.risk}%</div>)}
+        <div style={{fontSize:13,fontWeight:700,color:"#FF6B6B",marginBottom:8,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={15}/> 혈당 주의 패턴</div>
+        {dangerTimes.map((d,i)=><div key={i} style={{fontSize:12,color:C.txtL,marginBottom:4}}><span style={{fontWeight:700,color:"#FF6B6B"}}>{d.type}</span> — 평균 {d.avg}mg/dL, 목표 초과 {d.risk}%</div>)}
       </div></div>}
       <div style={S.sec}><div style={S.secT}><TrendingUp size={17} color={C.pri}/> 7일 혈당 추이</div><div style={S.card}><Chart records={records}/></div></div>
       {/* Quick actions: water + meds */}
@@ -266,7 +292,7 @@ export default function App() {
       </div></div>
       <div style={S.sec}><div style={S.secT}><Clock size={17} color={C.pri}/> 오늘의 기록</div><div style={S.card}>
         {!todayRec.length?<div style={{textAlign:"center",padding:"28px 0",color:C.txtLLL}}><FileText size={32} strokeWidth={1.5} color={C.txtLLL} style={{margin:"0 auto 8px"}}/><div style={{fontSize:14,fontWeight:600,color:C.txtL}}>아직 오늘의 기록이 없어요</div></div>
-        :todayRec.map((r,i)=>{const lv=getLevel(r.glucose);return(<div key={r.id} style={{...S.recI,borderZaptom:i<todayRec.length-1?"1px solid "+C.border:"none"}}>
+        :todayRec.map((r,i)=>{const lv=getLevel(r.glucose,r.type);return(<div key={r.id} onClick={()=>setDetailRecord(r)} style={{...S.recI,borderBottom:i<todayRec.length-1?"1px solid "+C.border:"none",cursor:"pointer"}}>
           <div style={{width:46,height:46,borderRadius:14,background:lv.bg,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 0 0 3px "+lv.ring}}><span style={{fontWeight:800,fontSize:15,color:lv.color,fontFamily:"monospace"}}>{r.glucose}</span></div>
           <div style={{flex:1}}><div style={{fontWeight:650,fontSize:13.5}}>{r.type}</div><div style={{fontSize:11.5,color:C.txtLLL,marginTop:2}}>{r.time}{r.food?" · "+r.food:""}</div></div>
           <div style={{padding:"5px 10px",borderRadius:10,background:lv.bg,color:lv.color,fontSize:11,fontWeight:700}}>{lv.label}</div>
@@ -290,8 +316,8 @@ export default function App() {
       </div>
       {/* Medication Checklist */}
       {healthTab==="meds"&&<div style={S.sec}><div style={S.secT}><Pill size={17} color={C.pri}/> 오늘의 약 복용 체크</div>
-        {meds.map((m,mi)=><div key={mi} style={{...S.card,marginZaptom:10}}>
-          <div style={{fontWeight:700,fontSize:14,marginZaptom:10}}>{m.name}</div>
+        {meds.map((m,mi)=><div key={mi} style={{...S.card,marginBottom:10}}>
+          <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>{m.name}</div>
           {m.times.map((t,ti)=>{const key=todayMedKey+"-"+mi+"-"+ti;const done=medChecks[key];
             return(<div key={ti} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderTop:ti>0?"1px solid "+C.border:"none"}}>
               <div><span style={{fontSize:13,fontWeight:600}}>{t}</span><span style={{fontSize:11,color:C.txtLLL,marginLeft:8}}>복용 시간</span></div>
@@ -303,7 +329,7 @@ export default function App() {
       </div>}
       {/* Exercise */}
       {healthTab==="exercise"&&<div style={S.sec}><div style={S.secT}><Activity size={17} color={C.pri}/> 운동 기록</div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginZaptom:12}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
           {[{type:"걷기",min:30},{type:"조깅",min:20},{type:"자전거",min:30},{type:"수영",min:30},{type:"요가",min:30},{type:"근력운동",min:20}].map(e=>
             <button key={e.type} onClick={()=>addExercise(e.type,e.min)} style={{...S.card,padding:"14px 12px",cursor:"pointer",border:"1px solid "+C.border,textAlign:"left"}}>
               <div style={{fontWeight:700,fontSize:13}}>{e.type}</div>
@@ -323,7 +349,7 @@ export default function App() {
           <div style={{fontSize:48,fontWeight:800,color:C.pri,fontFamily:"monospace"}}>{waterCups*250}<span style={{fontSize:18,color:C.txtLLL}}>ml</span></div>
           <div style={{fontSize:12,color:C.txtL,marginTop:4}}>목표 2,000ml 중 {Math.round((waterCups*250/2000)*100)}%</div>
           <div style={{display:"flex",gap:6,justifyContent:"center",marginTop:16}}>
-            {[...Array(8)].map((_,i)=><div key={i} onClick={()=>setWaterCups(i+1)} style={{width:28,height:36,borderRadius:8,background:i<waterCups?"linear-gradient(180deg,"+C.pri+",#7DD3FC)":C.cardH,cursor:"pointer",border:"1px solid "+(i<waterCups?C.pri:C.border),display:"flex",alignItems:"flex-end",justifyContent:"center",paddingZaptom:4}}>
+            {[...Array(8)].map((_,i)=><div key={i} onClick={()=>setWaterCups(i+1)} style={{width:28,height:36,borderRadius:8,background:i<waterCups?"linear-gradient(180deg,"+C.pri+",#7DD3FC)":C.cardH,cursor:"pointer",border:"1px solid "+(i<waterCups?C.pri:C.border),display:"flex",alignItems:"flex-end",justifyContent:"center",paddingBottom:4}}>
               <span style={{fontSize:8,fontWeight:600,color:i<waterCups?"#fff":C.txtLLL}}>{(i+1)*250}</span>
             </div>)}
           </div>
@@ -332,7 +358,7 @@ export default function App() {
       </div>}
       {/* Hospital */}
       {healthTab==="hospital"&&<div style={S.sec}><div style={S.secT}><Heart size={17} color={C.pri}/> 병원 방문 기록</div>
-        {hospitals.map((h,i)=><div key={i} style={{...S.card,marginZaptom:10}}>
+        {hospitals.map((h,i)=><div key={i} style={{...S.card,marginBottom:10}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div><div style={{fontWeight:700,fontSize:14}}>{h.type}</div><div style={{fontSize:12,color:C.txtLLL,marginTop:2}}>{h.date}</div></div>
             {h.hba1c&&<div style={{textAlign:"right"}}><div style={{fontSize:10,color:C.txtLLL}}>HbA1c</div><div style={{fontSize:20,fontWeight:800,color:parseFloat(h.hba1c)<7?"#00C48C":"#FFB340",fontFamily:"monospace"}}>{h.hba1c}%</div></div>}
@@ -381,7 +407,7 @@ export default function App() {
           </button>
           :<div style={S.card}>
             {[{key:"breakfast",label:"아침",Icon:Sunrise},{key:"lunch",label:"점심",Icon:Sun},{key:"dinner",label:"저녁",Icon:Moon}].map(({key,label,Icon})=>dietRec[key]&&(
-              <div key={key} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderZaptom:key!=="dinner"?"1px solid "+C.border:"none"}}>
+              <div key={key} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:key!=="dinner"?"1px solid "+C.border:"none"}}>
                 <div style={{width:40,height:40,borderRadius:12,background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={18} color={C.pri}/></div>
                 <div style={{flex:1}}><div style={{fontWeight:700,fontSize:13}}>{label}: {dietRec[key].menu}</div><div style={{fontSize:11,color:C.txtL,marginTop:2}}>{dietRec[key].desc}</div></div>
               </div>
@@ -393,12 +419,12 @@ export default function App() {
         {/* Meal Delta */}
         <div style={S.sec}><div style={S.secT}><BarChart3 size={17} color={C.pri}/> 식전→식후 변화량</div>
           {mealStats.map(ms=>{const MI=ms.meal==="아침"?Sunrise:ms.meal==="점심"?Sun:Moon;const c=ms.avg>40?"#FF6B6B":ms.avg>25?"#FFB340":"#00C48C";
-            return(<div key={ms.meal} style={{...S.card,marginZaptom:10}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginZaptom:ms.foods.length?10:0}}>
+            return(<div key={ms.meal} style={{...S.card,marginBottom:10}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:ms.foods.length?10:0}}>
                 <div style={{fontWeight:750,fontSize:15,display:"flex",alignItems:"center",gap:7}}><MI size={17} color={C.pri}/> {ms.meal}</div>
                 <div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:10,color:C.txtLLL}}>{ms.count}회</span><span style={{fontWeight:800,fontSize:18,color:c,fontFamily:"monospace"}}>+{ms.avg}</span></div>
               </div>
-              {ms.foods.map((f,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"6px 10px",background:f.avg>40?"rgba(255,107,107,0.04)":"rgba(0,0,0,0.015)",borderRadius:10,marginZaptom:3}}>
+              {ms.foods.map((f,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"6px 10px",background:f.avg>40?"rgba(255,107,107,0.04)":"rgba(0,0,0,0.015)",borderRadius:10,marginBottom:3}}>
                 <span style={{fontSize:15}}>{f.emoji||""}</span><span style={{flex:1,fontSize:12,fontWeight:600}}>{f.name}</span><span style={{fontWeight:700,fontSize:13,color:f.avg>40?"#FF6B6B":f.avg>25?"#FFB340":"#00C48C",fontFamily:"monospace"}}>+{f.avg}</span>
               </div>)}
             </div>);
@@ -413,16 +439,16 @@ export default function App() {
   // ── SETTINGS ──
   const renderSettings=()=>{if(!settingsOpen)return null;return(
     <div style={S.ov} onClick={()=>setSettingsOpen(false)}><div style={S.sht} onClick={e=>e.stopPropagation()}>
-      <div style={S.hdl}/><div style={{fontSize:19,fontWeight:800,marginZaptom:24,display:"flex",alignItems:"center",gap:10}}><Settings size={20} color={C.pri}/> 설정</div>
-      <div style={{marginZaptom:24}}><div style={{fontSize:14,fontWeight:700,marginZaptom:10,display:"flex",alignItems:"center",gap:7}}><Target size={16} color={C.pri}/> 목표 혈당</div>
+      <div style={S.hdl}/><div style={{fontSize:19,fontWeight:800,marginBottom:24,display:"flex",alignItems:"center",gap:10}}><Settings size={20} color={C.pri}/> 설정</div>
+      <div style={{marginBottom:24}}><div style={{fontSize:14,fontWeight:700,marginBottom:10,display:"flex",alignItems:"center",gap:7}}><Target size={16} color={C.pri}/> 목표 혈당</div>
         <div style={{display:"flex",alignItems:"center",gap:12}}><input type="range" min="80" max="200" value={goalBg} onChange={e=>setGoalBg(parseInt(e.target.value))} style={{flex:1,accentColor:C.pri}}/><div style={{minWidth:60,fontWeight:800,fontSize:20,color:C.pri,fontFamily:"monospace"}}>{goalBg}</div></div>
       </div>
-      <div style={{marginZaptom:24}}><div style={{fontSize:14,fontWeight:700,marginZaptom:10,display:"flex",alignItems:"center",gap:7}}><Download size={16} color={C.pri}/> 기록 내보내기</div>
+      <div style={{marginBottom:24}}><div style={{fontSize:14,fontWeight:700,marginBottom:10,display:"flex",alignItems:"center",gap:7}}><Download size={16} color={C.pri}/> 기록 내보내기</div>
         <button onClick={exportCSV} style={{width:"100%",padding:14,borderRadius:14,border:"2px solid "+C.border,background:C.card,fontSize:14,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Download size={16}/> CSV 다운로드</button>
       </div>
-      <div style={{marginZaptom:16}}><div style={{fontSize:14,fontWeight:700,marginZaptom:10,display:"flex",alignItems:"center",gap:7}}><Users size={16} color={C.pri}/> 가족 공유</div>
+      <div style={{marginBottom:16}}><div style={{fontSize:14,fontWeight:700,marginBottom:10,display:"flex",alignItems:"center",gap:7}}><Users size={16} color={C.pri}/> 가족 공유</div>
         <div style={{background:"rgba(56,189,248,0.04)",borderRadius:18,padding:18,border:"1px solid rgba(56,189,248,0.1)"}}>
-          <div style={{fontSize:12.5,color:C.txtL,marginZaptom:10}}>공유 코드를 가족에게 보내면 혈당 기록을 함께 확인할 수 있어요</div>
+          <div style={{fontSize:12.5,color:C.txtL,marginBottom:10}}>공유 코드를 가족에게 보내면 혈당 기록을 함께 확인할 수 있어요</div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <div style={{flex:1,background:C.card,borderRadius:12,padding:"12px 16px",fontFamily:"monospace",fontSize:16,fontWeight:700,color:C.pri,textAlign:"center",letterSpacing:2,border:"2px solid rgba(56,189,248,0.15)"}}>{shareCode}</div>
             <button onClick={()=>{navigator.clipboard&&navigator.clipboard.writeText(shareCode);showToast("코드가 복사되었습니다");}} style={{padding:"12px 16px",borderRadius:12,border:"none",background:C.pri,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:5}}><Copy size={14}/> 복사</button>
@@ -434,14 +460,14 @@ export default function App() {
 
   return(
     <div style={S.app}>
-      <div style={{paddingZaptom:78}}>
+      <div style={{paddingBottom:78}}>
         {tab==="home"&&renderHome()}
         {tab==="calendar"&&(<>
           <div style={{...S.hdr,background:"linear-gradient(165deg,#082F49 0%,#0C4A6E 40%,#0EA5E9 100%)"}}><div style={S.glow}/><div style={{position:"relative",zIndex:1}}><div style={S.badge}><img src={LOGO} alt="" style={{width:18,height:18,borderRadius:5}}/><Calendar size={13}/> 캘린더</div><div style={{fontSize:20,fontWeight:800,marginTop:10}}>날짜별 혈당 기록</div></div></div>
           <div style={S.sec}><div style={S.card}><CalendarView records={records} selectedDate={selectedDate} onSelect={setSelectedDate}/></div></div>
           <div style={S.sec}><div style={S.secT}><FileText size={17} color={C.pri}/> {fmtDate(selectedDate)} 기록</div><div style={S.card}>
             {!records.filter(r=>r.date===selectedDate).length?<div style={{textAlign:"center",padding:"20px 0",color:C.txtLLL,fontSize:13}}>이 날의 기록이 없어요</div>
-            :records.filter(r=>r.date===selectedDate).map((r,i,a)=>{const lv=getLevel(r.glucose);return(<div key={r.id} style={{...S.recI,borderZaptom:i<a.length-1?"1px solid "+C.border:"none"}}>
+            :records.filter(r=>r.date===selectedDate).map((r,i,a)=>{const lv=getLevel(r.glucose,r.type);return(<div key={r.id} onClick={()=>setDetailRecord(r)} style={{...S.recI,borderBottom:i<a.length-1?"1px solid "+C.border:"none",cursor:"pointer"}}>
               <div style={{width:42,height:42,borderRadius:13,background:lv.bg,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:14,color:lv.color,fontFamily:"monospace",boxShadow:"0 0 0 2.5px "+lv.ring}}>{r.glucose}</div>
               <div style={{flex:1}}><div style={{fontWeight:600,fontSize:13}}>{r.type}</div><div style={{fontSize:11,color:C.txtLLL,marginTop:1}}>{r.time}{r.food?" · "+r.food:""}</div></div>
               <div style={{padding:"4px 9px",borderRadius:8,background:lv.bg,color:lv.color,fontSize:10.5,fontWeight:700}}>{lv.label}</div>
@@ -465,17 +491,21 @@ export default function App() {
       {/* Record Modal */}
       {modal&&(<div style={S.ov} onClick={()=>setModal(false)}><div style={S.sht} onClick={e=>e.stopPropagation()}>
         <div style={S.hdl}/>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginZaptom:22}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}}>
           <div><div style={{fontSize:18,fontWeight:800}}>혈당 기록하기</div><div style={{fontSize:12,color:C.txtLLL,marginTop:3}}>오늘의 혈당과 식사를 기록해주세요</div></div>
           <button onClick={()=>setModal(false)} style={{background:C.cardH,border:"none",width:34,height:34,borderRadius:11,cursor:"pointer",color:C.txtLLL,display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16}/></button>
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
-          <div><label style={{fontSize:12,fontWeight:700,marginZaptom:7,display:"block"}}>혈당 수치</label>
-            <div style={{position:"relative"}}><input type="number" placeholder="수치 입력" value={form.glucose} onChange={e=>setForm(p=>({...p,glucose:e.target.value}))} style={S.inp}/><span style={{position:"absolute",right:16,top:"50%",transform:"translateY(-50%)",fontSize:13,color:C.txtLLL,fontWeight:600}}>mg/dL</span></div>
-            {form.glucose&&(()=>{const lv=getLevel(parseInt(form.glucose)||0);return<div style={{marginTop:8,fontSize:12,fontWeight:600,color:lv.color,display:"flex",alignItems:"center",gap:7}}><span style={{width:9,height:9,borderRadius:"50%",background:lv.color}}/>{lv.label} 범위</div>;})()}
+          <div><label style={{fontSize:12,fontWeight:700,marginBottom:7,display:"block"}}>혈당 수치</label>
+            <div style={{position:"relative",display:"flex",gap:8}}><input type="number" placeholder="수치 입력" value={form.glucose} onChange={e=>setForm(p=>({...p,glucose:e.target.value}))} style={{...S.inp,paddingRight:70}}/>
+              <span style={{position:"absolute",right:56,top:"50%",transform:"translateY(-50%)",fontSize:13,color:C.txtLLL,fontWeight:600}}>mg/dL</span>
+              <button onClick={startVoice} style={{width:48,height:48,borderRadius:14,border:voiceListening?"2px solid #FF6B6B":"2px solid "+C.border,background:voiceListening?"rgba(255,107,107,0.08)":C.inputBg,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Mic size={20} color={voiceListening?"#FF6B6B":C.txtL}/></button>
+            </div>
+            {voiceListening&&<div style={{marginTop:6,fontSize:12,color:"#FF6B6B",fontWeight:600,display:"flex",alignItems:"center",gap:6}}><div style={{width:8,height:8,borderRadius:"50%",background:"#FF6B6B",animation:"pulse 1s infinite"}}/>듣고 있어요... 혈당 수치를 말해주세요</div>}
+            {form.glucose&&(()=>{const lv=getLevel(parseInt(form.glucose)||0,form.type);const rng=getRangeType(form.type);return<div style={{marginTop:8,fontSize:12,fontWeight:600,color:lv.color,display:"flex",alignItems:"center",gap:7}}><span style={{width:9,height:9,borderRadius:"50%",background:lv.color}}/>{lv.label} 범위 <span style={{color:C.txtLLL,fontWeight:400}}>({rng.label} 목표: {rng.normal}~{rng.warn} mg/dL)</span></div>;})()}
           </div>
-          <div><label style={{fontSize:12,fontWeight:700,marginZaptom:7,display:"block"}}>측정 시점</label><select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={S.sel}>{mealTypes.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
-          <div><label style={{fontSize:12,fontWeight:700,marginZaptom:7,display:"flex",alignItems:"center",gap:8}}><Camera size={14}/> 음식 사진 <span style={{fontSize:10,background:C.pri,color:"#fff",padding:"2px 8px",borderRadius:6,fontWeight:700}}>AI 자동 인식</span></label>
+          <div><label style={{fontSize:12,fontWeight:700,marginBottom:7,display:"block"}}>측정 시점</label><select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={S.sel}>{mealTypes.map(t=><option key={t} value={t}>{t}</option>)}</select></div>
+          <div><label style={{fontSize:12,fontWeight:700,marginBottom:7,display:"flex",alignItems:"center",gap:8}}><Camera size={14}/> 음식 사진 <span style={{fontSize:10,background:C.pri,color:"#fff",padding:"2px 8px",borderRadius:6,fontWeight:700}}>AI 자동 인식</span></label>
             <input type="file" accept="image/*" multiple ref={fileRef} style={{display:"none"}} onChange={handlePhoto}/>
             {previews.length>0?<div>
               <div style={{display:"grid",gridTemplateColumns:previews.length===1?"1fr":"1fr 1fr",gap:8,marginBottom:8}}>
@@ -489,33 +519,64 @@ export default function App() {
             :<button onClick={()=>fileRef.current&&fileRef.current.click()} style={S.phBtn}><Camera size={18}/> 사진을 찍으면 AI가 자동으로 음식을 인식해요</button>}
             {analyzing&&<div style={{background:"rgba(56,189,248,0.06)",borderRadius:20,padding:28,marginTop:12,textAlign:"center",border:"1.5px solid rgba(56,189,248,0.15)"}}><Search size={20} color={C.pri} style={{animation:"spin 1.5s linear infinite"}}/><div style={{fontSize:14,fontWeight:700,marginTop:8}}>AI가 음식을 분석하고 있어요</div><div style={{fontSize:12,color:C.txtLLL,marginTop:4}}>음식, 양, 영양성분 확인 중...</div></div>}
             {aiResult&&<div style={{background:"rgba(56,189,248,0.04)",borderRadius:20,padding:18,border:"1.5px solid rgba(56,189,248,0.12)",marginTop:12}}>
-              <div style={{fontSize:12,fontWeight:700,color:C.priD,marginZaptom:12,display:"flex",alignItems:"center",gap:6}}><Search size={15}/> AI 음식 인식 결과</div>
-              <div style={{display:"flex",alignItems:"center",gap:14,marginZaptom:14}}>
+              <div style={{fontSize:12,fontWeight:700,color:C.priD,marginBottom:12,display:"flex",alignItems:"center",gap:6}}><Search size={15}/> AI 음식 인식 결과</div>
+              <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:14}}>
                 <div style={{width:52,height:52,borderRadius:16,background:C.card,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>{aiResult.emoji}</div>
                 <div><div style={{fontWeight:800,fontSize:17}}>{aiResult.name}</div>
                   {aiResult.portion&&<div style={{fontSize:11.5,color:C.txtL,marginTop:2,display:"flex",alignItems:"center",gap:4}}><Activity size={12}/> {aiResult.portion}</div>}
                   <div style={{display:"flex",gap:8,marginTop:6}}><span style={{background:C.card,padding:"3px 9px",borderRadius:7,fontSize:11,fontWeight:600}}>GI {aiResult.gi_score}</span><span style={{background:C.card,padding:"3px 9px",borderRadius:7,fontSize:11,fontWeight:600}}>~{aiResult.calories}kcal</span></div>
                 </div>
               </div>
-              {aiResult.carbs&&aiResult.name!=="인식 불가"&&<div style={{background:"#f0f9ff",borderRadius:14,padding:"12px 14px",marginZaptom:12,border:"1px solid rgba(56,189,248,0.12)"}}>
-                <div style={{fontSize:11.5,fontWeight:700,color:C.priD,marginZaptom:10,display:"flex",alignItems:"center",gap:5}}><Zap size={13}/> 영양성분</div>
+              {aiResult.carbs&&aiResult.name!=="인식 불가"&&<div style={{background:"#f0f9ff",borderRadius:14,padding:"12px 14px",marginBottom:12,border:"1px solid rgba(56,189,248,0.12)"}}>
+                <div style={{fontSize:11.5,fontWeight:700,color:C.priD,marginBottom:10,display:"flex",alignItems:"center",gap:5}}><Zap size={13}/> 영양성분</div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
                   {[{l:"탄수화물",v:aiResult.carbs,u:"g",c:"#F59E0B"},{l:"단백질",v:aiResult.protein,u:"g",c:"#10B981"},{l:"지방",v:aiResult.fat,u:"g",c:"#EF4444"},{l:"당류",v:aiResult.sugar,u:"g",c:"#F97316"},{l:"식이섬유",v:aiResult.fiber,u:"g",c:"#22C55E"},{l:"나트륨",v:aiResult.sodium,u:"mg",c:"#8B5CF6"}].map(n=><div key={n.l} style={{background:C.card,borderRadius:10,padding:"8px",textAlign:"center"}}><div style={{fontSize:9,color:C.txtLLL}}>{n.l}</div><div style={{fontSize:15,fontWeight:800,color:n.c,fontFamily:"monospace",marginTop:2}}>{n.v}<span style={{fontSize:9,color:C.txtLLL}}>{n.u}</span></div></div>)}
                 </div>
               </div>}
-              {aiResult.warning&&<div style={{background:"rgba(255,107,107,0.05)",borderRadius:12,padding:"10px 13px",marginZaptom:8,fontSize:11.5,color:"#FF6B6B",fontWeight:600,display:"flex",alignItems:"center",gap:5}}><AlertTriangle size={13}/> {aiResult.warning}</div>}
-              {aiResult.tip&&<div style={{background:"rgba(0,196,140,0.05)",borderRadius:12,padding:"10px 13px",marginZaptom:12,fontSize:11.5,color:"#00C48C",fontWeight:600,display:"flex",alignItems:"center",gap:5}}><Lightbulb size={13}/> {aiResult.tip}</div>}
+              {aiResult.warning&&<div style={{background:"rgba(255,107,107,0.05)",borderRadius:12,padding:"10px 13px",marginBottom:8,fontSize:11.5,color:"#FF6B6B",fontWeight:600,display:"flex",alignItems:"center",gap:5}}><AlertTriangle size={13}/> {aiResult.warning}</div>}
+              {aiResult.tip&&<div style={{background:"rgba(0,196,140,0.05)",borderRadius:12,padding:"10px 13px",marginBottom:12,fontSize:11.5,color:"#00C48C",fontWeight:600,display:"flex",alignItems:"center",gap:5}}><Lightbulb size={13}/> {aiResult.tip}</div>}
               <div style={{display:"flex",gap:10}}>
                 <button onClick={acceptAI} style={{flex:1,padding:13,borderRadius:13,border:"none",background:"linear-gradient(145deg,#082F49,#0C4A6E)",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><CheckCircle size={15}/> 적용</button>
                 <button onClick={retryPhoto} style={{padding:"13px 18px",borderRadius:13,border:"2px solid "+C.border,background:C.card,color:C.txtL,fontSize:13,fontWeight:600,cursor:"pointer"}}>다시 촬영</button>
               </div>
             </div>}
           </div>
-          <div><label style={{fontSize:12,fontWeight:700,marginZaptom:7,display:"block"}}>먹은 음식 <span style={{fontWeight:400,color:C.txtLLL}}>직접 입력 가능</span></label><input type="text" placeholder="사진 촬영 또는 직접 입력" value={form.food} onChange={e=>setForm(p=>({...p,food:e.target.value}))} style={S.inp}/></div>
+          <div><label style={{fontSize:12,fontWeight:700,marginBottom:7,display:"block"}}>먹은 음식 <span style={{fontWeight:400,color:C.txtLLL}}>직접 입력 가능</span></label><input type="text" placeholder="사진 촬영 또는 직접 입력" value={form.food} onChange={e=>setForm(p=>({...p,food:e.target.value}))} style={S.inp}/></div>
           <button onClick={submit} style={{...S.btn,marginTop:4,opacity:form.glucose?1:0.35}}>기록 저장</button>
         </div>
       </div></div>)}
-      <style>{"@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}"}</style>
+      {/* Detail Record Modal */}
+      {detailRecord&&(()=>{const r=detailRecord;const lv=getLevel(r.glucose,r.type);return(
+        <div style={S.ov} onClick={()=>setDetailRecord(null)}>
+          <div style={{...S.sht,maxHeight:"75vh"}} onClick={e=>e.stopPropagation()}>
+            <div style={S.hdl}/>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+              <div style={{fontSize:18,fontWeight:800}}>기록 상세</div>
+              <button onClick={()=>setDetailRecord(null)} style={{background:C.cardH,border:"none",width:34,height:34,borderRadius:11,cursor:"pointer",color:C.txtLLL,display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16}/></button>
+            </div>
+            <div style={{textAlign:"center",padding:"20px 0",background:lv.bg,borderRadius:20,marginBottom:16}}>
+              <div style={{fontSize:48,fontWeight:800,color:lv.color,fontFamily:"monospace"}}>{r.glucose}</div>
+              <div style={{fontSize:13,color:lv.color,fontWeight:700,marginTop:4}}>{lv.label} · {r.type}</div>
+              <div style={{fontSize:12,color:C.txtL,marginTop:6}}>{fmtDate(r.date)} · {r.time}</div>
+              <div style={{fontSize:11,color:C.txtLLL,marginTop:4}}>목표 범위: {getRangeType(r.type).normal}~{getRangeType(r.type).warn} mg/dL</div>
+            </div>
+            {r.food&&<div style={{...S.card,marginBottom:12}}>
+              <div style={{fontSize:12,fontWeight:700,color:C.priD,marginBottom:8}}>먹은 음식</div>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                {r.foodEmoji&&<span style={{fontSize:24}}>{r.foodEmoji}</span>}
+                <div>
+                  <div style={{fontWeight:700,fontSize:15}}>{r.food}</div>
+                  {r.foodGI&&<span style={{background:r.foodGI==="high"?"rgba(255,107,107,0.08)":r.foodGI==="medium"?"rgba(255,179,64,0.08)":"rgba(0,196,140,0.08)",color:r.foodGI==="high"?"#FF6B6B":r.foodGI==="medium"?"#FFB340":"#00C48C",padding:"2px 8px",borderRadius:6,fontWeight:600,fontSize:10.5}}>{r.foodGI==="high"?"고GI":r.foodGI==="medium"?"중GI":"저GI"}</span>}
+                </div>
+              </div>
+            </div>}
+            {r.photo&&<div style={{borderRadius:16,overflow:"hidden",marginBottom:12}}><img src={r.photo} alt="" style={{width:"100%",height:200,objectFit:"cover",display:"block"}}/></div>}
+            <button onClick={()=>{if(confirm("이 기록을 삭제하시겠습니까?"))deleteRecord(r.id);}} style={{width:"100%",padding:"14px",borderRadius:14,border:"2px solid rgba(255,107,107,0.2)",background:"rgba(255,107,107,0.04)",fontSize:14,fontWeight:600,cursor:"pointer",color:"#FF6B6B",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              <Trash2 size={16}/> 이 기록 삭제
+            </button>
+          </div>
+        </div>);})()}
+      <style>{"@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}"}</style>
     </div>
   );
 }
